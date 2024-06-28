@@ -3,7 +3,7 @@ import Header from "@/components/shared/Header";
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div>
-      <main className="min-h-screen container">
+      <main className="min-h-screen">
         <Header />
         {children}
       </main>
