@@ -1,27 +1,23 @@
-"use client";
+import LoginForm from "@/components/forms/LoginForm";
+import SignupForm from "@/components/forms/SignupForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useUrlContext } from "@/context/UrlContext";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
-import Login from "./_components/Login";
-import Signup from "./_components/Signup";
+import { Metadata } from "next";
 
-function Auth() {
-  let searchParams = useSearchParams();
-  const router = useRouter();
-  const { isAuthenticated, loading } = useUrlContext();
-  const longLink = searchParams.get("createNew");
+export const metadata: Metadata = {
+  title: "Auth | URL Shortener App",
+  description: "A simple and efficient URL shortener application Auth.",
+};
 
-  useEffect(() => {
-    if (isAuthenticated && !loading)
-      router.push(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`);
-  }, [isAuthenticated, loading, router]);
+type SearchParams = {
+  searchParams: { [key: string]: string | undefined };
+};
 
+function Auth({ searchParams }: SearchParams) {
   return (
     <section id="auth" className="w-full h-full">
-      <div className="max-w-[1300px] py-[60px]  px-[10px] sm:px-[20px] mx-auto flex flex-col items-center gap-10">
+      <div className="max-w-[1300px]  py-[55px] md:py-[80px]  px-[10px] sm:px-[20px] mx-auto flex flex-col items-center gap-10">
         <h1 className="text-4xl sm:text-5xl font-extrabold">
-          {searchParams.get("createNew")
+          {searchParams?.createNew
             ? "Hold up! Let's login first.."
             : "Login / Signup"}
         </h1>
@@ -31,10 +27,10 @@ function Auth() {
             <TabsTrigger value="signup">Signup</TabsTrigger>
           </TabsList>
           <TabsContent value="login">
-            <Login />
+            <LoginForm />
           </TabsContent>
           <TabsContent value="signup">
-            <Signup />
+            <SignupForm />
           </TabsContent>
         </Tabs>
       </div>

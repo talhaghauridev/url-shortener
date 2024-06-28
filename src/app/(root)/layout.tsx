@@ -1,3 +1,4 @@
+import Footer from "@/components/shared/Footer";
 import Header from "@/components/shared/Header";
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
@@ -7,9 +8,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         <Header />
         {children}
       </main>
-      <div className="p-10 text-center bg-gray-800 mt-10">
-        Made with 💗 by Talha Ghaui
-      </div>
+      <Footer />
     </div>
   );
 };
