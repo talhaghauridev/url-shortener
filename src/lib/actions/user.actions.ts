@@ -1,19 +1,21 @@
 "use server";
 
-import { supabase } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/server";
 import { SignInType, SignUpType } from "../validations/user.validations";
 import { revalidatePath } from "next/cache";
 
 export async function signin({ email, password }: SignInType) {
   try {
+    const supabase = createClient();
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
-    if (error) throw Error(error.message);
-    return data;
-  } catch (error: unknown) {
-    throw new Error("Error in signup");
+    if (error) throw new Error(error.message);
+    return JSON.parse(JSON.stringify(data));
+  } catch (error: any) {
+    throw new Error(error.message);
   }
 }
 
@@ -24,32 +26,28 @@ export async function signup({
   profile_pic,
 }: SignUpType) {
   try {
-    const fileName = `dp-${name.split(" ").join("-")}-${Math.random()}`;
-    const { error: storageError } = await supabase.storage
-      .from("profile_pic")
-      .upload(fileName, profile_pic);
-    if (storageError) throw Error(storageError.message);
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    if (!supabaseUrl) throw Error("Supabase URL not found");
+    const supabase = createClient();
     const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           name,
-          profile_pic: `${supabaseUrl}/storage/v1/object/public/profile_pic/${fileName}`,
+          profile_pic,
         },
       },
     });
     if (error) throw new Error(error.message);
-    return data;
-  } catch (error) {
-    throw new Error("Error in signup");
+    return JSON.parse(JSON.stringify(data));
+  } catch (error: any) {
+    throw new Error(error.message);
   }
 }
 
 export async function getUser() {
   try {
+    const supabase = createClient();
+
     const {
       data: { session },
       error,
@@ -63,6 +61,7 @@ export async function getUser() {
 
 export async function signout(path: string) {
   try {
+    const supabase = createClient();
     const { error } = await supabase.auth.signOut();
     if (error) throw Error(error.message);
     revalidatePath(path);

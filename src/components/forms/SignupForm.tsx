@@ -19,18 +19,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { useUrlContext } from "@/context/UrlContext";
 import useFetch from "@/hooks/useFetch";
-import { signin, signup } from "@/lib/actions/user.actions";
+import { signup } from "@/lib/actions/user.actions";
+import { uploadFile } from "@/lib/utils";
 import {
-  SignInType,
-  SignInValidation,
   SignUpType,
   SignUpValidation,
 } from "@/lib/validations/user.validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { BeatLoader } from "react-spinners";
+import { toast } from "react-toastify";
+
 const initialValues: SignUpType = {
   name: "",
   email: "",
@@ -49,40 +50,43 @@ const SignupForm = () => {
     resolver: zodResolver(SignUpValidation),
   });
 
-  const { loading, error, fn: fnLogin, data } = useFetch(signup);
+  const { loading, error, fn: fnSignup, data } = useFetch(signup);
 
-  const onSubmit = useCallback((values: SignUpType) => {
-    console.log(values);
-  }, []);
+  const onSubmit = useCallback(
+    async ({ name, profile_pic, ...rest }: SignUpType) => {
+      const uploadedUrl = await uploadFile({ name, profile_pic });
+      if (uploadedUrl) {
+        await fnSignup({ ...rest, name, profile_pic: uploadedUrl });
+      }
+    },
+    [fnSignup]
+  );
 
   const handleImage = useCallback(
     (
       e: React.ChangeEvent<HTMLInputElement>,
-      fileChange: (value: string) => void
+      fileChange: (value: File) => void
     ) => {
       e.preventDefault();
-      const fileReader = new FileReader();
       if (e.target.files && e.target.files.length > 0) {
         const file = e.target.files[0];
-
-        if (!file.type.includes("image")) return;
-        fileReader.onload = async (event) => {
-          const imageUrl = event.target?.result?.toString() || "";
-          fileChange(imageUrl);
-        };
-        fileReader.readAsDataURL(file);
+        fileChange(file);
       }
     },
     []
   );
 
   const handleRedirect = useCallback(() => {
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     if (isAuthenticated && !userLoading) {
       router.push(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`);
       return;
     }
 
-    if (error === null && data) {
+    if (!error && data) {
       fetchUser();
       router.push(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`, {
         scroll: false,
@@ -93,13 +97,12 @@ const SignupForm = () => {
   useEffect(() => {
     handleRedirect();
   }, [handleRedirect]);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Login</CardTitle>
-        <CardDescription>
-          to your account if you already have one
-        </CardDescription>
+        <CardTitle>Create Account</CardTitle>
+        <CardDescription>Sign up to create a new account</CardDescription>
       </CardHeader>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -111,7 +114,7 @@ const SignupForm = () => {
                 <FormItem>
                   <FormLabel className="!text-white">Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter Name" type="name" {...field} />
+                    <Input placeholder="Enter Name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -124,7 +127,7 @@ const SignupForm = () => {
                 <FormItem>
                   <FormLabel className="!text-white">Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter Email" type="email" {...field} />
+                    <Input placeholder="Enter Email" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -184,4 +187,4 @@ const SignupForm = () => {
   );
 };
 
-export default SignupForm;
+export default memo(SignupForm);

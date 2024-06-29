@@ -2,10 +2,6 @@
 "use client";
 import { useState, useCallback } from "react";
 
-interface FetchOptions {
-  [key: string]: any;
-}
-
 interface FetchResult<T, F extends (...args: any) => Promise<any>> {
   data: T | null;
   loading: boolean;
@@ -28,8 +24,8 @@ const useFetch = <T, F extends (...args: any) => Promise<T>>(
         const response = await cb(...args);
         setData(response);
         setError(null);
-      } catch (error) {
-        setError(error as Error);
+      } catch (error: any) {
+        setError(error);
       } finally {
         setLoading(false);
       }

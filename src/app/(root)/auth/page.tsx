@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Auth | URL Shortener App",
+  title: "Auth | Trimrr URL Shortener App",
   description: "A simple and efficient URL shortener application Auth.",
 };
 

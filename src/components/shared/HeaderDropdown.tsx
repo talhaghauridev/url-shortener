@@ -14,14 +14,22 @@ import { Button } from "../ui/button";
 import { useUrlContext } from "@/context/UrlContext";
 import Link from "next/link";
 import { signout } from "@/lib/actions/user.actions";
+import { memo } from "react";
+import { Skeleton } from "../ui/skeleton";
+
 const HeaderDropdown = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const { user } = useUrlContext();
+  const { user, loading, fetchUser } = useUrlContext();
+
   return (
     <div className="flex gap-4">
-      {!user ? (
-        <Button onClick={() => router.push("/auth")}>Login</Button>
+      {loading ? (
+        <Skeleton className="w-[70px] h-[2.5rem] rounded-[6px]" />
+      ) : !user ? (
+        <Link href={"/auth"}>
+          <Button>Login</Button>
+        </Link>
       ) : (
         <DropdownMenu>
           <DropdownMenuTrigger className="w-10 rounded-full overflow-hidden">
@@ -41,13 +49,14 @@ const HeaderDropdown = () => {
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
-                signout(pathname).then(() => {
+                signout(pathname).then(async (data) => {
+                  await fetchUser();
                   router.push("/auth");
                 });
               }}
               className="text-red-400"
             >
-              <LogOut className="mr-2 h-4 w-4" />
+              <LogOut className="mr-2 h-4 w-4 cursor-pointer" />
               <span>Logout</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -57,4 +66,4 @@ const HeaderDropdown = () => {
   );
 };
 
-export default HeaderDropdown;
+export default memo(HeaderDropdown);

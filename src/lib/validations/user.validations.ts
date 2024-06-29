@@ -18,7 +18,7 @@ export const SignUpValidation = z.object({
     .string()
     .min(8, { message: "Minimum 8 characters." })
     .max(20, { message: "Maximum 20 caracters." }),
-  profile_pic: z.string().nonempty(),
+  profile_pic: z.any(),
 });
 
 type SignInType = z.infer<typeof SignInValidation>;

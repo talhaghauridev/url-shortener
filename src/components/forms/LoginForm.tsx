@@ -26,9 +26,11 @@ import {
 } from "@/lib/validations/user.validations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect } from "react";
+import { memo, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { BeatLoader } from "react-spinners";
+import { toast } from "react-toastify";
+
 const initialValues: SignInType = {
   email: "",
   password: "",
@@ -39,7 +41,6 @@ const LoginForm = () => {
   const { isAuthenticated, loading: userLoading, fetchUser } = useUrlContext();
   const longLink = searchParams.get("createNew");
   const router = useRouter();
-
   const form = useForm({
     defaultValues: initialValues,
     mode: "onBlur",
@@ -48,11 +49,17 @@ const LoginForm = () => {
 
   const { loading, error, fn: fnLogin, data } = useFetch(signin);
 
-  const onSubmit = useCallback((values: SignInType) => {
-    console.log(values);
-  }, []);
+  const onSubmit = useCallback(
+    async (values: SignInType) => {
+      await fnLogin(values);
+    },
+    [fnLogin]
+  );
 
   const handleRedirect = useCallback(() => {
+    if (error) {
+      return toast.error(error.message);
+    }
     if (isAuthenticated && !userLoading) {
       router.push(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`);
       return;
@@ -69,6 +76,7 @@ const LoginForm = () => {
   useEffect(() => {
     handleRedirect();
   }, [handleRedirect]);
+
   return (
     <Card>
       <CardHeader>
@@ -124,4 +132,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+export default memo(LoginForm);

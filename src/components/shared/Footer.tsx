@@ -6,7 +6,7 @@ const Footer = () => {
   return (
     <footer id="footer" className="bg-gray-900">
       <div className="mx-auto max-w-screen-2xl px-4 md:px-8">
-        <div className="border-t border-gray-800 py-6 text-center text-sm text-gray-400 flex items-center sm:justify-between justify-center sm:flex-row flex-col  gap-3">
+        <div className="border-t border-gray-800 py-[20px] text-center text-sm text-gray-400 flex items-center sm:justify-between justify-center sm:flex-row flex-col  gap-3">
           <Image src={logo2} alt="Logo" height={60} width={60} />
           <p className="sm:order-2 order-3">
             © {new Date().getFullYear()} - Present Trimrr. All rights reserved.
