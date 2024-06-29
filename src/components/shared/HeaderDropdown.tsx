@@ -25,7 +25,7 @@ const HeaderDropdown = () => {
   return (
     <div className="flex gap-4">
       {loading ? (
-        <Skeleton className="w-[70px] h-[2.5rem] rounded-[6px]" />
+        <Skeleton className="w-[70px] h-[2.5rem] rounded-[6px] !bg-[#111827]" />
       ) : !user ? (
         <Link href={"/auth"}>
           <Button>Login</Button>

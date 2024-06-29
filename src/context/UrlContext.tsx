@@ -40,7 +40,7 @@ const useUser = () => {
     setError(null);
     try {
       const res = await getUser();
-      setUser(res?.user!);
+      setUser(res);
     } catch (err) {
       console.error(err);
       setError("Failed to fetch user");

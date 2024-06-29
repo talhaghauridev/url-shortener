@@ -49,13 +49,13 @@ export async function getUser() {
     const supabase = createClient();
 
     const {
-      data: { session },
+      data: { user },
       error,
-    } = await supabase.auth.getSession();
+    } = await supabase.auth.getUser();
     if (error) throw Error(error.message);
-    return session;
-  } catch (error) {
-    throw new Error("Error in getting user");
+    return user;
+  } catch (error: any) {
+    throw new Error(error.message);
   }
 }
 

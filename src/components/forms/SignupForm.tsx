@@ -20,11 +20,11 @@ import { Input } from "@/components/ui/input";
 import { useUrlContext } from "@/context/UrlContext";
 import useFetch from "@/hooks/useFetch";
 import { signup } from "@/lib/actions/user.actions";
-import { uploadFile } from "@/lib/utils";
 import {
   SignUpType,
   SignUpValidation,
 } from "@/lib/validations/user.validations";
+import { uploadUserFile } from "@/utils/uplaodFiles";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter, useSearchParams } from "next/navigation";
 import { memo, useCallback, useEffect } from "react";
@@ -54,7 +54,7 @@ const SignupForm = () => {
 
   const onSubmit = useCallback(
     async ({ name, profile_pic, ...rest }: SignUpType) => {
-      const uploadedUrl = await uploadFile({ name, profile_pic });
+      const uploadedUrl = await uploadUserFile({ name, profile_pic });
       if (uploadedUrl) {
         await fnSignup({ ...rest, name, profile_pic: uploadedUrl });
       }
