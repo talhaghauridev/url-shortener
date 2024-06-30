@@ -24,17 +24,15 @@ const page = async ({ searchParams }: SearchParams) => {
     clicks = await getClicksForUrls(urls?.map((url: any) => url.id));
   }
 
+  console.log(clicks);
+
   const filteredUrls =
     urls.length > 0 &&
-    urls?.filter((url: any) => {
+    urls.filter((url: any) => {
       return searchParams.query
         ? url.title.toLowerCase().includes(searchParams.query.toLowerCase())
         : url;
     });
-  console.log({
-    clicks,
-    urls,
-  });
 
   return (
     <div className="flex max-w-[1300px] mx-auto py-[50px] px-[20px] flex-col gap-8">

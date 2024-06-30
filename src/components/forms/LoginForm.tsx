@@ -58,14 +58,15 @@ const LoginForm = () => {
 
   const handleRedirect = useCallback(() => {
     if (error) {
-      return toast.error(error.message);
+      toast.error(error.message);
+      return;
     }
     if (isAuthenticated && !userLoading) {
       router.push(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`);
       return;
     }
 
-    if (error === null && data) {
+    if (!error && data) {
       fetchUser();
       router.push(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`, {
         scroll: false,

@@ -11,16 +11,22 @@ import {
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { banner1 } from "@/Images";
+import { useUrlContext } from "@/context/UrlContext";
 
 const page = () => {
   const [longUrl, setLongUrl] = useState("");
+  const { user, loading, isAuthenticated } = useUrlContext();
   const router = useRouter();
   const handleShorten = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      if (longUrl) router.push(`/auth?createNew=${longUrl}`);
+      if (!loading && longUrl && user == null && !isAuthenticated) {
+        router.push(`/auth?createNew=${longUrl}`);
+      } else if (!loading && user && longUrl && isAuthenticated) {
+        router.push(`/dashboard?${longUrl ? `createNew=${longUrl}` : ""}`);
+      }
     },
-    [longUrl, router]
+    [longUrl, router, isAuthenticated, loading]
   );
   return (
     <div className="max-w-[1300px] mx-auto pb-[30px]    flex flex-col items-center">

@@ -1,10 +1,9 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -18,26 +17,24 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useUrlContext } from "@/context/UrlContext";
-import { UrlType, UrlValidation } from "@/lib/validations/urls.validations";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter, useSearchParams } from "next/navigation";
-import {
-  RefAttributes,
-  RefObject,
-  useCallback,
-  useEffect,
-  useRef,
-} from "react";
-import { useForm } from "react-hook-form";
-import { BeatLoader } from "react-spinners";
-import { QRCode } from "react-qrcode-logo";
-import { createUrl } from "@/lib/actions/urls.actions";
 import useFetch from "@/hooks/useFetch";
-import { toast } from "react-toastify";
+import { createUrl } from "@/lib/actions/urls.actions";
+import { UrlType, UrlValidation } from "@/lib/validations/urls.validations";
 import { uploadQRCodeFile } from "@/utils/uplaodFiles";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useRef } from "react";
+import { useForm } from "react-hook-form";
+import { QRCode } from "react-qrcode-logo";
+import { BeatLoader } from "react-spinners";
+import { toast } from "react-toastify";
+interface UrlData {
+  [key: string]: any;
+}
 
 export function CreateLink() {
   const { user } = useUrlContext();
+  const pathname = usePathname();
   const router = useRouter();
   const ref = useRef<any>(null);
   let searchParams = useSearchParams();
@@ -62,7 +59,12 @@ export function CreateLink() {
         const blob = await new Promise((resolve) => canvas.toBlob(resolve));
         const qrCode = await uploadQRCodeFile(blob as string);
         if (qrCode) {
-          await fnCreateUrl({ ...values, user_id: user?.id!, qr: qrCode });
+          await fnCreateUrl({
+            ...values,
+            user_id: user?.id!,
+            path: pathname,
+            qr: qrCode,
+          });
         }
       } catch (error: any) {
         toast.error(error.message);
@@ -70,18 +72,21 @@ export function CreateLink() {
     },
     [user, ref]
   );
+  console.log(data);
 
   useEffect(() => {
-    if (error === null && data && new Array(data)) {
-      router.push(`/link/${String(new Array(data)[0].id)}`);
+    if (error === null && data) {
+      router.push(`/link/${String((data as UrlData[])[0].id)}`);
     }
-  }, [error, data]);
+  }, [error, data, router]);
 
   return (
     <Dialog
       defaultOpen={longLink ? true : false}
       onOpenChange={(res) => {
-        if (!res) router.push("/dashboard");
+        if (!res && longLink) {
+          router.push("/dashboard");
+        }
       }}
     >
       <DialogTrigger asChild>
@@ -96,7 +101,10 @@ export function CreateLink() {
         )}
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-2"
+          >
             <FormField
               control={form.control}
               name="title"
