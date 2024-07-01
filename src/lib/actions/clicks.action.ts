@@ -31,7 +31,6 @@ export async function getClicksForUrls(urlIds: string[]) {
     if (error) {
       throw new Error(error.message);
     }
-    console.log(data);
 
     return JSON.parse(JSON.stringify(data));
   } catch (error: any) {

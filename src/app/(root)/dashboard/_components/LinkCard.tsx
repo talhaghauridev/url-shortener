@@ -1,54 +1,11 @@
-"use client";
-import { Button } from "@/components/ui/button";
-import useFetch from "@/hooks/useFetch";
-import { deleteUrl } from "@/lib/actions/urls.actions";
-import { download } from "@/lib/utils";
-import { UrlType } from "@/lib/validations/urls.validations";
-import { Copy, Download, LinkIcon, Trash } from "lucide-react";
+import LinkButtons from "@/components/shared/LinkButtons";
+import { UrlType } from "@/types";
+import { LinkIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect } from "react";
-import { toast } from "react-toastify";
-type LinkCardProps = {
-  id: string;
-  created_at: Date;
-  original_url: string;
-  short_url: string;
-  custom_url: string;
-  user_id: string;
-  title: string;
-  qr: string;
-};
+import { memo } from "react";
 
-const LinkCard = ({ url }: { url: LinkCardProps }) => {
-  const pathname = usePathname();
-
-  const downloadImage = async () => {
-    const imageUrl = url?.qr;
-    const fileName = url?.title;
-    download(imageUrl, fileName);
-  };
-
-  const copyUrl = useCallback(() => {
-    navigator.clipboard.writeText(
-      `${process.env.NEXT_PUBLIC_APP_URL!}/${url?.short_url}`
-    );
-    toast.success("Copied Url");
-  }, [url?.short_url, toast]);
-  const { loading: loadingDelete, fn: fnDelete, error } = useFetch(deleteUrl);
-
-  const handleDeleteUrl = useCallback(() => {
-    fnDelete(url.id as any, pathname).then(() => {
-      toast.success("Url deleted successfully");
-    });
-  }, [pathname, url.id, toast]);
-
-  useEffect(() => {
-    if (error) {
-      toast.error(error.message);
-    }
-  }, [error]);
+const LinkCard = (url: UrlType) => {
   return (
     <div className="flex flex-col md:flex-row gap-5 border p-4 bg-gray-900 rounded-lg">
       <Image
@@ -74,24 +31,9 @@ const LinkCard = ({ url }: { url: LinkCardProps }) => {
           {new Date(url?.created_at).toLocaleString()}
         </span>
       </Link>
-      <div className="flex gap-2">
-        <Button variant="ghost" size={"icon"} onClick={copyUrl}>
-          <Copy />
-        </Button>
-        <Button variant="ghost" size={"icon"} onClick={downloadImage}>
-          <Download />
-        </Button>
-        <Button
-          variant="ghost"
-          onClick={handleDeleteUrl}
-          disabled={loadingDelete}
-          size={"icon"}
-        >
-          <Trash />
-        </Button>
-      </div>
+      <LinkButtons {...url} />
     </div>
   );
 };
 
-export default LinkCard;
+export default memo(LinkCard);

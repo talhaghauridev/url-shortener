@@ -171,7 +171,11 @@ const SignupForm = () => {
             />
             <Button
               type="submit"
-              disabled={loading || !form.formState.isValid}
+              disabled={
+                loading ||
+                !form.formState.isValid ||
+                !form.getValues().profile_pic
+              }
               className="w-[136px] flex items-center justify-center !mt-5 disabled:selection:bg-none"
             >
               {loading ? (

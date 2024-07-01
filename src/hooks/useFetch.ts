@@ -1,4 +1,3 @@
-// useFetch.ts
 "use client";
 import { useState, useCallback } from "react";
 
@@ -9,7 +8,7 @@ interface FetchResult<T, F extends (...args: any) => Promise<any>> {
   fn: (...args: Parameters<F>) => Promise<void>;
 }
 
-const useFetch = <T, F extends (...args: any) => Promise<T>>(
+const useFetch = <T, F extends (...args: any) => Promise<T> = () => Promise<T>>(
   cb: F
 ): FetchResult<T, F> => {
   const [data, setData] = useState<T | null>(null);

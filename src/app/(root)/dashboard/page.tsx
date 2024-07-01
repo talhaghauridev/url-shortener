@@ -1,12 +1,12 @@
-import { Metadata } from "next";
-import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getUser } from "@/lib/actions/user.actions";
-import SearchLinkBox from "./_components/SearchLinkBox";
-import { getUrls } from "@/lib/actions/urls.actions";
-import { getClicksForUrls } from "@/lib/actions/clicks.action";
-import LinkCard from "./_components/LinkCard";
 import { CreateLink } from "@/components/forms/LinkForm";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getClicksForUrls } from "@/lib/actions/clicks.action";
+import { getUrls } from "@/lib/actions/urls.actions";
+import { getUser } from "@/lib/actions/user.actions";
+import { UrlType } from "@/types";
+import { Metadata } from "next";
+import LinkCard from "./_components/LinkCard";
+import SearchLinkBox from "./_components/SearchLinkBox";
 export const metadata: Metadata = {
   title: "Dashboard | Trimrr URL Shortener App",
   description: "A simple and efficient URL shortener application Auth.",
@@ -18,17 +18,15 @@ type SearchParams = {
 
 const page = async ({ searchParams }: SearchParams) => {
   const user = await getUser();
-  const urls = await getUrls(user?.id!);
+  const urls: UrlType[] = await getUrls(user?.id!);
   let clicks;
   if (urls.length > 0) {
-    clicks = await getClicksForUrls(urls?.map((url: any) => url.id));
+    clicks = await getClicksForUrls(urls.map((url) => url.id));
   }
-
-  console.log(clicks);
 
   const filteredUrls =
     urls.length > 0 &&
-    urls.filter((url: any) => {
+    urls.filter((url) => {
       return searchParams.query
         ? url.title.toLowerCase().includes(searchParams.query.toLowerCase())
         : url;
@@ -63,8 +61,8 @@ const page = async ({ searchParams }: SearchParams) => {
         <CreateLink />
       </div>
       <SearchLinkBox />
-      {(filteredUrls || []).map((url: any, i: number) => (
-        <LinkCard key={i} url={url} />
+      {(filteredUrls || []).map((url, i: number) => (
+        <LinkCard key={i} {...url} />
       ))}
     </div>
   );
