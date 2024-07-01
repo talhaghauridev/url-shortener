@@ -50,3 +50,27 @@ export const uploadQRCodeFile = async (qrcode: string) => {
     return null;
   }
 };
+
+export const removeQRCodeFile = async (url: string) => {
+  try {
+    const supabase = createClient();
+    const regex = /\/qrs\/(qr-[a-zA-Z0-9]+)/;
+    const fileName = url.match(regex);
+
+    if (fileName === null || !fileName[1]) {
+      toast.error("Invalid Url");
+      return false;
+    }
+    const { error: storageError } = await supabase.storage
+      .from("qrs")
+      .remove([fileName[1]]);
+    if (storageError) {
+      toast.error(storageError.message);
+      return false;
+    }
+    return true;
+  } catch (error: any) {
+    toast.error(error.message);
+    return false;
+  }
+};
