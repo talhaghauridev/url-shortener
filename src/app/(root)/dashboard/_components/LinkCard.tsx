@@ -11,7 +11,7 @@ const LinkCard = (url: UrlType) => {
       <Image
         src={url?.qr}
         className="h-[120px] md:h-[134px] object-contain ring ring-blue-500 self-start max-w-fit"
-        alt="qr code"
+        alt="QR code"
         height={400}
         width={400}
       />

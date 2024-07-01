@@ -2,7 +2,7 @@
 import useFetch from "@/hooks/useFetch";
 import { storeClicks } from "@/lib/actions/clicks.action";
 import { getLongUrl } from "@/lib/actions/urls.actions";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { BarLoader } from "react-spinners";
 import { toast } from "react-toastify";
 
@@ -11,6 +11,7 @@ type RedirectingParams = {
 };
 
 const user_agent = typeof navigator !== "undefined" && navigator.userAgent;
+
 const Redirecting = ({ id }: RedirectingParams) => {
   const {
     loading,
@@ -25,6 +26,9 @@ const Redirecting = ({ id }: RedirectingParams) => {
     error: errStats,
   } = useFetch(storeClicks);
 
+  const memoizedFnStats = useCallback(fnStats, [fnStats]);
+  const memoizedFuLongUrl = useCallback(fuLongUrl, [fuLongUrl]);
+
   useEffect(() => {
     if (
       !loading &&
@@ -34,7 +38,7 @@ const Redirecting = ({ id }: RedirectingParams) => {
       "original_url" in data &&
       user_agent
     ) {
-      fnStats({
+      memoizedFnStats({
         id: data.id as string,
         user_agent,
       });
@@ -42,7 +46,7 @@ const Redirecting = ({ id }: RedirectingParams) => {
         window.location.href = String(data.original_url);
       }
     }
-  }, [loading, data, user_agent]);
+  }, [loading, data, memoizedFnStats]);
 
   useEffect(() => {
     if ((!loadingStats && errLongUrl) || errStats) {
@@ -52,9 +56,9 @@ const Redirecting = ({ id }: RedirectingParams) => {
 
   useEffect(() => {
     if (id) {
-      fuLongUrl(id);
+      memoizedFuLongUrl(id);
     }
-  }, [id]);
+  }, [id, memoizedFuLongUrl]);
 
   if (loading || loadingStats) {
     return (

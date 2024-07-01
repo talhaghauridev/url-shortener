@@ -7,6 +7,7 @@ import { UrlType } from "@/types";
 import { Metadata } from "next";
 import LinkCard from "./_components/LinkCard";
 import SearchLinkBox from "./_components/SearchLinkBox";
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Dashboard | Trimrr URL Shortener App",
   description: "A simple and efficient URL shortener application Auth.",
@@ -15,8 +16,7 @@ export const metadata: Metadata = {
 type SearchParams = {
   searchParams: { [key: string]: string };
 };
-
-const page = async ({ searchParams }: SearchParams) => {
+export default async function page({ searchParams }: SearchParams) {
   const user = await getUser();
   const urls: UrlType[] = await getUrls(user?.id!);
   let clicks;
@@ -66,6 +66,4 @@ const page = async ({ searchParams }: SearchParams) => {
       ))}
     </div>
   );
-};
-
-export default page;
+}

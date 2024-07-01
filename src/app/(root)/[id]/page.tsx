@@ -1,6 +1,5 @@
 import Redirecting from "@/components/shared/Redirecting";
 import { Metadata } from "next";
-import React from "react";
 
 export const metadata: Metadata = {
   title: "Redirecting | Trimrr URL Shortener App",

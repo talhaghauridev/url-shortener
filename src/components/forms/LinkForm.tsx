@@ -58,10 +58,10 @@ export function CreateLink() {
         const canvas = ref?.current.canvasRef.current;
         const blob = await new Promise((resolve) => canvas.toBlob(resolve));
         const qrCode = await uploadQRCodeFile(blob as string);
-        if (qrCode) {
+        if (qrCode && user) {
           await fnCreateUrl({
             ...values,
-            user_id: user?.id!,
+            user_id: user.id!,
             path: pathname,
             qr: qrCode,
           });
@@ -70,16 +70,16 @@ export function CreateLink() {
         toast.error(error.message);
       }
     },
-    [user, ref]
+    [user, ref, pathname, fnCreateUrl]
   );
-  console.log(data);
 
   useEffect(() => {
     if (error === null && data) {
       router.push(`/link/${String((data as UrlData[])[0].id)}`);
     }
   }, [error, data, router]);
-
+  const url = process.env.NEXT_PUBLIC_APP_URL!;
+  const parsedUrl = new URL(url);
   return (
     <Dialog
       defaultOpen={longLink ? true : false}
@@ -92,7 +92,7 @@ export function CreateLink() {
       <DialogTrigger asChild>
         <Button variant="destructive">Create New Link</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="font-bold text-2xl">Create New</DialogTitle>
         </DialogHeader>
@@ -145,9 +145,13 @@ export function CreateLink() {
                 <FormItem>
                   <FormControl>
                     <div className="flex items-center gap-2">
-                      <Card className="p-2">trimrr.in</Card> /
+                      <Card className="p-2 w-full max-w-[170px]">
+                        {parsedUrl.hostname}
+                      </Card>
+                      /
                       <Input
                         id="customUrl"
+                        className="w-full "
                         placeholder="Custom Link (optional)"
                         {...field}
                       />

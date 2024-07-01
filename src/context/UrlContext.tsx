@@ -51,7 +51,7 @@ const useUser = () => {
 
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, [fetchUser]);
 
   const isAuthenticated = useMemo(
     () => user?.role === "authenticated",

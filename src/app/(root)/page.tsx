@@ -1,45 +1,44 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import React, { useCallback, useState } from "react";
+import { banner1 } from "@/Images";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { banner1 } from "@/Images";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useUrlContext } from "@/context/UrlContext";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 
-const page = () => {
+const Page = () => {
   const [longUrl, setLongUrl] = useState("");
   const { user, loading, isAuthenticated } = useUrlContext();
   const router = useRouter();
-  const handleShorten = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (!loading && longUrl && user == null && !isAuthenticated) {
-        router.push(`/auth?createNew=${longUrl}`);
-      } else if (!loading && user && longUrl && isAuthenticated) {
-        router.push(`/dashboard?${longUrl ? `createNew=${longUrl}` : ""}`);
-      }
-    },
-    [longUrl, router, isAuthenticated, loading]
-  );
+
+  const handleShorten = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!loading && longUrl && user == null && !isAuthenticated) {
+      router.push(`/auth?createNew=${longUrl}`);
+    } else if (!loading && user && longUrl && isAuthenticated) {
+      router.push(`/dashboard?${longUrl ? `createNew=${longUrl}` : ""}`);
+    }
+  };
+
   return (
-    <div className="max-w-[1300px] mx-auto pb-[30px]    flex flex-col items-center">
+    <div className="max-w-[1300px] mx-auto pb-[30px] flex flex-col items-center">
       <h2 className="px-[10px] sm:px-[20px] my-10 sm:my-16 text-3xl sm:text-6xl lg:text-7xl text-white text-center font-extrabold">
         The only URL Shortener <br /> you&rsquo;ll ever need! 👇
       </h2>
       <form
         onSubmit={handleShorten}
-        className="sm:h-[50px] px-[10px] sm:px-[20px]  flex flex-col sm:flex-row w-full md:w-2/4 gap-2"
+        className="sm:h-[50px] px-[10px] sm:px-[20px] flex flex-col sm:flex-row w-full md:w-2/4 gap-2"
       >
         <Input
           type="url"
-          placeholder="Enter your loooong URL"
+          placeholder="Enter your long URL"
           value={longUrl}
           onChange={(e) => setLongUrl(e.target.value)}
           className="h-full flex-1 py-4 px-4"
@@ -63,7 +62,7 @@ const page = () => {
       >
         <AccordionItem value="item-1">
           <AccordionTrigger>
-            How does the Trimrr URL shortener works?
+            How does the Trimrr URL shortener work?
           </AccordionTrigger>
           <AccordionContent>
             When you enter a long URL, our system generates a shorter version of
@@ -85,7 +84,7 @@ const page = () => {
             What analytics are available for my shortened URLs?
           </AccordionTrigger>
           <AccordionContent>
-            You can view the number of clicks, geolocation data of the clicks
+            You can view the number of clicks, geolocation data of the clicks,
             and device types (mobile/desktop) for each of your shortened URLs.
           </AccordionContent>
         </AccordionItem>
@@ -94,4 +93,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

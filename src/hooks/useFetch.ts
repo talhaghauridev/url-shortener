@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 
 interface FetchResult<T, F extends (...args: any) => Promise<any>> {
   data: T | null;

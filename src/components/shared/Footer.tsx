@@ -1,6 +1,5 @@
 import { logo2 } from "@/Images";
 import Image from "next/image";
-import React from "react";
 
 const Footer = () => {
   return (

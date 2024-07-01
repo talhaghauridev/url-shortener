@@ -7,14 +7,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useUrlContext } from "@/context/UrlContext";
+import { signout } from "@/lib/actions/user.actions";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { LinkIcon, LogOut } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
-import { Button } from "../ui/button";
-import { useUrlContext } from "@/context/UrlContext";
 import Link from "next/link";
-import { signout } from "@/lib/actions/user.actions";
+import { usePathname, useRouter } from "next/navigation";
 import { memo } from "react";
+import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 
 const HeaderDropdown = () => {

@@ -2,7 +2,7 @@ import LoginForm from "@/components/forms/LoginForm";
 import SignupForm from "@/components/forms/SignupForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Metadata } from "next";
-
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Auth | Trimrr URL Shortener App",
   description: "A simple and efficient URL shortener application Auth.",

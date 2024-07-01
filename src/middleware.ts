@@ -1,5 +1,5 @@
-import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
+import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "./utils/supabase/server";
 
 export async function middleware(request: NextRequest) {
@@ -15,5 +15,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard"],
+  matcher: ["/dashboard", "/link:path*"],
 };

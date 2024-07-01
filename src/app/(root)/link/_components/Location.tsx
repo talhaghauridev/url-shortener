@@ -1,12 +1,12 @@
-import React, { memo } from "react";
+import { memo } from "react";
 import {
-  LineChart,
+  Legend,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
 } from "recharts";
 type LocationProps = {
   stats: any[];
@@ -20,13 +20,11 @@ const Location = ({ stats }: LocationProps) => {
     }
     return acc;
   }, {});
-  console.log(cityCount);
 
   const cities = Object.entries(cityCount).map(([city, count]) => ({
     city,
     count,
   }));
-  console.log(cities);
 
   return (
     <div style={{ width: "100%", height: 300 }}>
