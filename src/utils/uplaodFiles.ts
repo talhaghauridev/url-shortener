@@ -1,5 +1,5 @@
 import { createClient } from "@/utils/supabase/client";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 type UploadFileParams = {
   name: string;
@@ -68,9 +68,7 @@ export const removeQRCodeFile = async (url: string) => {
       toast.error(storageError.message);
       return false;
     }
-    if (data) {
-      console.log(data);
-    }
+
     return true;
   } catch (error: any) {
     toast.error(error.message);

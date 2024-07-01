@@ -1,14 +1,15 @@
 "use client";
 import useFetch from "@/hooks/useFetch";
 import { deleteUrl } from "@/lib/actions/urls.actions";
-import { download } from "@/lib/utils";
+import { actionErrorHandler, download } from "@/lib/utils";
 import { UrlType } from "@/types";
 import { removeQRCodeFile } from "@/utils/uplaodFiles";
 import { Copy, Download, Trash } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { memo, useCallback, useEffect, useMemo } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Button } from "../ui/button";
+import { useAction } from "next-safe-action/hooks";
 
 type LinkButtonsProps = UrlType & {
   redirect?: boolean;
@@ -27,6 +28,7 @@ const LinkButtons = ({ redirect = false, ...url }: LinkButtonsProps) => {
       toast.error("Image URL or title is missing.");
     }
   }, [url?.qr, url?.title]);
+
   const copyUrl = useCallback(() => {
     const urlToCopy = `${process.env.NEXT_PUBLIC_APP_URL!}/${link}`;
     navigator.clipboard
@@ -36,19 +38,16 @@ const LinkButtons = ({ redirect = false, ...url }: LinkButtonsProps) => {
   }, [link]);
 
   const {
-    loading: loadingDelete,
-    fn: fnDelete,
-    error: deleteError,
-  } = useFetch(deleteUrl);
-  const {
-    loading: loadingRemoveFile,
-    fn: fnRemoveQR,
-    error: removeQRError,
-  } = useFetch(removeQRCodeFile);
+    isExecuting: loadingDelete,
+    executeAsync: fnDelete,
+    result,
+  } = useAction(deleteUrl);
+  const { loading: loadingRemoveFile, fn: fnRemoveQR } =
+    useFetch(removeQRCodeFile);
 
   const handleDeleteUrl = useCallback(async () => {
     try {
-      await fnDelete(url.id as string, pathname);
+      await fnDelete({ id: url.id, path: pathname });
       await fnRemoveQR(url.qr);
       if (redirect) {
         router.push("/dashboard");
@@ -58,16 +57,11 @@ const LinkButtons = ({ redirect = false, ...url }: LinkButtonsProps) => {
     } catch (err) {
       toast.error("Failed to delete URL or QR code.");
     }
-  }, [fnDelete, fnRemoveQR, pathname, redirect, router, url.id, url.qr]);
+  }, [pathname, redirect, router, url.id, url.qr]);
 
   useEffect(() => {
-    if (deleteError) {
-      toast.error(deleteError.message);
-    }
-    if (removeQRError) {
-      toast.error(removeQRError.message);
-    }
-  }, [deleteError, removeQRError]);
+    actionErrorHandler(result);
+  }, [result.fetchError]);
 
   return (
     <div className="flex gap-2">

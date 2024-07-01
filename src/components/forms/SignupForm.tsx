@@ -18,20 +18,19 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useUrlContext } from "@/context/UrlContext";
-import useFetch from "@/hooks/useFetch";
 import { signup } from "@/lib/actions/user.actions";
+import { actionErrorHandler } from "@/lib/utils";
 import {
   SignUpType,
   SignUpValidation,
 } from "@/lib/validations/user.validations";
 import { uploadUserFile } from "@/utils/uplaodFiles";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useAction } from "next-safe-action/hooks";
 import { useRouter, useSearchParams } from "next/navigation";
 import { memo, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { BeatLoader } from "react-spinners";
-import { toast } from "react-toastify";
-
 const initialValues: SignUpType = {
   name: "",
   email: "",
@@ -50,8 +49,12 @@ const SignupForm = () => {
     resolver: zodResolver(SignUpValidation),
   });
 
-  const { loading, error, fn: fnSignup, data } = useFetch(signup);
-
+  const {
+    execute: fnSignup,
+    result: data,
+    isExecuting: loading,
+    hasSucceeded,
+  } = useAction(signup);
   const onSubmit = useCallback(
     async ({ name, profile_pic, ...rest }: SignUpType) => {
       const uploadedUrl = await uploadUserFile({ name, profile_pic });
@@ -75,24 +78,20 @@ const SignupForm = () => {
     },
     []
   );
-
   const handleRedirect = useCallback(() => {
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
+    actionErrorHandler(data);
     if (isAuthenticated && !userLoading) {
       router.push(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`);
       return;
     }
 
-    if (!error && data) {
+    if (data) {
       fetchUser();
       router.push(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`, {
         scroll: false,
       });
     }
-  }, [isAuthenticated, userLoading, longLink, error, data, router, fetchUser]);
+  }, [isAuthenticated, userLoading, longLink, data, router]);
 
   useEffect(() => {
     handleRedirect();

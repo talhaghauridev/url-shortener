@@ -11,7 +11,7 @@ type Params = {
     id: string;
   };
 };
-const page = ({ params }: Params) => {
+const page = async ({ params }: Params) => {
   return <Redirecting id={params.id} />;
 };
 

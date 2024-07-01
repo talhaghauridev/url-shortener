@@ -7,8 +7,6 @@ type DeviceStatsProps = {
 };
 
 const DeviceStats = ({ stats = [] }: DeviceStatsProps) => {
-  console.log(stats);
-
   const deviceCount = stats.reduce((acc, item) => {
     if (!acc[item.device]) {
       acc[item.device] = 0;
@@ -16,8 +14,6 @@ const DeviceStats = ({ stats = [] }: DeviceStatsProps) => {
     acc[item.device]++;
     return acc;
   }, {});
-
-  console.log(deviceCount);
 
   const result = Object.keys(deviceCount).map((device) => ({
     device,

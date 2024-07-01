@@ -19,15 +19,17 @@ import { Input } from "@/components/ui/input";
 import { useUrlContext } from "@/context/UrlContext";
 import useFetch from "@/hooks/useFetch";
 import { createUrl } from "@/lib/actions/urls.actions";
+import { actionErrorHandler } from "@/lib/utils";
 import { UrlType, UrlValidation } from "@/lib/validations/urls.validations";
 import { uploadQRCodeFile } from "@/utils/uplaodFiles";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useAction } from "next-safe-action/hooks";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { QRCode } from "react-qrcode-logo";
 import { BeatLoader } from "react-spinners";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 interface UrlData {
   [key: string]: any;
 }
@@ -44,7 +46,11 @@ export function CreateLink() {
     longUrl: longLink ? longLink : "",
     customUrl: "",
   };
-  const { loading, error, data, fn: fnCreateUrl } = useFetch(createUrl);
+  const {
+    isExecuting: loading,
+    result: data,
+    executeAsync: fnCreateUrl,
+  } = useAction(createUrl);
 
   const form = useForm({
     defaultValues: initialValues,
@@ -74,10 +80,11 @@ export function CreateLink() {
   );
 
   useEffect(() => {
-    if (error === null && data) {
+    actionErrorHandler(data);
+    if (data.fetchError === null && data) {
       router.push(`/link/${String((data as UrlData[])[0].id)}`);
     }
-  }, [error, data, router]);
+  }, [data, router]);
   const url = process.env.NEXT_PUBLIC_APP_URL!;
   const parsedUrl = new URL(url);
   return (
@@ -97,7 +104,12 @@ export function CreateLink() {
           <DialogTitle className="font-bold text-2xl">Create New</DialogTitle>
         </DialogHeader>
         {form.getValues().longUrl && (
-          <QRCode ref={ref} size={250} value={form.getValues().longUrl} />
+          <QRCode
+            ref={ref}
+            style={{ height: "220px", width: "220px" }}
+            size={250}
+            value={form.getValues().longUrl}
+          />
         )}
 
         <Form {...form}>

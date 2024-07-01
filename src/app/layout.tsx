@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { UrlProvider } from "@/context/UrlContext";
 import NextTopLoader from "nextjs-toploader";
-import { ToastContainer } from "react-toastify";
+import { Toaster } from "@/components/ui/sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <UrlProvider>{children}</UrlProvider>
-        <ToastContainer draggable stacked theme="dark" />
+        <Toaster />
         <NextTopLoader showSpinner={false} />
       </body>
     </html>

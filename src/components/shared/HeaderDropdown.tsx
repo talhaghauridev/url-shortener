@@ -9,22 +9,27 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useUrlContext } from "@/context/UrlContext";
 import { signout } from "@/lib/actions/user.actions";
+import { actionErrorHandler } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { LinkIcon, LogOut } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 
 const HeaderDropdown = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, loading, fetchUser } = useUrlContext();
-
+  const { user, loading, isAuthenticated, fetchUser } = useUrlContext();
+  const { executeAsync, isExecuting, result } = useAction(signout);
+  useEffect(() => {
+    actionErrorHandler(result);
+  }, [result]);
   return (
     <div className="flex gap-4">
-      {loading ? (
+      {loading || isExecuting ? (
         <Skeleton className="w-[70px] h-[2.5rem] rounded-[6px] !bg-[#111827]" />
       ) : !user ? (
         <Link href={"/auth"}>
@@ -49,9 +54,11 @@ const HeaderDropdown = () => {
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
-                signout(pathname).then(async (data) => {
-                  await fetchUser();
-                  router.push("/auth");
+                executeAsync({ path: pathname }).then(() => {
+                  fetchUser();
+                  if (isAuthenticated === false && !user) {
+                    router.push("/auth");
+                  }
                 });
               }}
               className="text-red-400"

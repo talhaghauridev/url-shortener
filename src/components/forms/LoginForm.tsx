@@ -18,19 +18,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useUrlContext } from "@/context/UrlContext";
-import useFetch from "@/hooks/useFetch";
 import { signin } from "@/lib/actions/user.actions";
+import { actionErrorHandler } from "@/lib/utils";
 import {
   SignInType,
   SignInValidation,
 } from "@/lib/validations/user.validations";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useAction } from "next-safe-action/hooks";
 import { useRouter, useSearchParams } from "next/navigation";
 import { memo, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { BeatLoader } from "react-spinners";
-import { toast } from "react-toastify";
-
 const initialValues: SignInType = {
   email: "",
   password: "",
@@ -47,32 +46,29 @@ const LoginForm = () => {
     resolver: zodResolver(SignInValidation),
   });
 
-  const { loading, error, fn: fnLogin, data } = useFetch(signin);
+  const { execute, result: data, isExecuting: loading } = useAction(signin);
 
   const onSubmit = useCallback(
     async (values: SignInType) => {
-      await fnLogin(values);
+      await execute(values);
     },
-    [fnLogin]
+    [execute]
   );
 
   const handleRedirect = useCallback(() => {
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
+    actionErrorHandler(data);
     if (isAuthenticated && !userLoading) {
       router.push(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`);
       return;
     }
 
-    if (!error && data) {
+    if (data.data) {
       fetchUser();
       router.push(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`, {
         scroll: false,
       });
     }
-  }, [isAuthenticated, userLoading, longLink, error, data, router, fetchUser]);
+  }, [isAuthenticated, userLoading, longLink, data, router]);
 
   useEffect(() => {
     handleRedirect();

@@ -20,6 +20,9 @@ export const SignUpValidation = z.object({
     .max(20, { message: "Maximum 20 caracters." }),
   profile_pic: z.any(),
 });
+export const SignoutValidation = z.object({
+  path: z.string(),
+});
 
 type SignInType = z.infer<typeof SignInValidation>;
 type SignUpType = z.infer<typeof SignUpValidation>;

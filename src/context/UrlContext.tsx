@@ -1,7 +1,8 @@
 "use client";
-
 import { getUser } from "@/lib/actions/user.actions";
+import { actionErrorHandler } from "@/lib/utils";
 import { AuthSession } from "@supabase/supabase-js";
+import { useAction } from "next-safe-action/hooks";
 import React, {
   createContext,
   useCallback,
@@ -14,8 +15,7 @@ import React, {
 type UrlContextType = {
   user: AuthSession["user"] | null;
   loading: boolean;
-  error: string | null;
-  fetchUser: () => void;
+  fetchUser: () => Promise<void>;
   isAuthenticated: boolean;
 };
 
@@ -29,50 +29,37 @@ const useUrlContext = (): UrlContextType => {
   return context;
 };
 
-// Custom hook to manage user state
 const useUser = () => {
-  const [user, setUser] = useState<AuthSession["user"] | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { execute, result: data, isExecuting } = useAction(getUser);
 
   const fetchUser = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await getUser();
-      setUser(res);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to fetch user");
-    } finally {
-      setLoading(false);
-    }
+    setTimeout(() => {
+      execute();
+    }, 0);
   }, []);
-
   useEffect(() => {
     fetchUser();
-  }, [fetchUser]);
+  }, []);
 
   const isAuthenticated = useMemo(
-    () => user?.role === "authenticated",
-    [user?.role]
+    () => data.data?.role === "authenticated",
+    [data.data?.role]
   );
 
-  return { user, loading, error, fetchUser, isAuthenticated };
+  return { user: data.data!, loading: isExecuting, fetchUser, isAuthenticated };
 };
 
 const UrlProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, error, fetchUser, isAuthenticated } = useUser();
+  const { user, loading, fetchUser, isAuthenticated } = useUser();
 
   const contextValue = useMemo(
     () => ({
       user,
       loading,
-      error,
       fetchUser,
       isAuthenticated,
     }),
-    [user, loading, error, fetchUser, isAuthenticated]
+    [user, loading, fetchUser, isAuthenticated]
   );
 
   return (

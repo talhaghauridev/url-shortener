@@ -16,21 +16,33 @@ export const metadata: Metadata = {
 type SearchParams = {
   searchParams: { [key: string]: string };
 };
-export default async function page({ searchParams }: SearchParams) {
-  const user = await getUser();
-  const urls: UrlType[] = await getUrls(user?.id!);
-  let clicks;
-  if (urls.length > 0) {
-    clicks = await getClicksForUrls(urls.map((url) => url.id));
-  }
 
-  const filteredUrls =
-    urls.length > 0 &&
-    urls.filter((url) => {
-      return searchParams.query
-        ? url.title.toLowerCase().includes(searchParams.query.toLowerCase())
-        : url;
-    });
+const fetchUserAndUrls = async (): Promise<UrlType[]> => {
+  const user = await getUser();
+  if (!user?.data?.id) throw new Error("User not found");
+
+  const urlsData = await getUrls({ userId: String(user.data.id) });
+  return urlsData?.data || [];
+};
+
+const fetchClicksForUrls = async (urlIds: string[]) => {
+  const clicksData = await getClicksForUrls({ urlIds: urlIds.map(String) });
+  return clicksData?.data || [];
+};
+
+const filterUrls = (urls: UrlType[], query?: string): UrlType[] => {
+  if (!query) return urls;
+  const lowercasedQuery = query.toLowerCase();
+  return urls.filter((url) =>
+    url.title.toLowerCase().includes(lowercasedQuery)
+  );
+};
+
+export default async function page({ searchParams }: SearchParams) {
+  const urls = await fetchUserAndUrls();
+  const urlIds = urls.map((url) => url.id);
+  const clicks = urlIds.length > 0 ? await fetchClicksForUrls(urlIds) : [];
+  const filteredUrls = filterUrls(urls, searchParams.query);
 
   return (
     <div className="flex max-w-[1300px] mx-auto py-[50px] px-[20px] flex-col gap-8">
@@ -61,9 +73,13 @@ export default async function page({ searchParams }: SearchParams) {
         <CreateLink />
       </div>
       <SearchLinkBox />
-      {(filteredUrls || []).map((url, i: number) => (
-        <LinkCard key={i} {...url} />
-      ))}
+      {filteredUrls.length === 0 ? (
+        <h1 className="w-full sm:h-[140px] h-[120px] flex items-center justify-center text-[18px] sm:text-[22px]">
+          No Links Found
+        </h1>
+      ) : (
+        filteredUrls.map((url, i: number) => <LinkCard key={i} {...url} />)
+      )}
     </div>
   );
 }

@@ -3,45 +3,45 @@ import LinkButtons from "@/components/shared/LinkButtons";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUrlContext } from "@/context/UrlContext";
-import useFetch from "@/hooks/useFetch";
 import { getClicksForUrls } from "@/lib/actions/clicks.action";
 import { getUrl } from "@/lib/actions/urls.actions";
-import { UrlType } from "@/types";
 import { LinkIcon } from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { BarLoader } from "react-spinners";
-import Location from "../_components/Location";
 import DeviceStats from "../_components/DeviceStats";
+import Location from "../_components/Location";
 const LinkPage = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const router = useRouter();
   const { user } = useUrlContext();
   const { id }: { id: string } = useParams();
   const {
-    loading,
-    data: url,
-    fn: funUrl,
-    error,
-  } = useFetch<UrlType, typeof getUrl>(getUrl);
+    execute: funUrl,
+    isExecuting: loading,
+    result: { data: url },
+  } = useAction(getUrl);
   const {
-    loading: loadingStats,
-    data: stats,
-    fn: fnStats,
-  } = useFetch<any, typeof getClicksForUrls>(getClicksForUrls);
+    isExecuting: loadingStats,
+    execute: fnStats,
+    result: { data: stats },
+  } = useAction(getClicksForUrls);
 
   useEffect(() => {
     if (user?.id && id) {
       funUrl({ id, userId: user.id });
     }
-  }, [funUrl, user?.id, id]);
+  }, [user?.id, id]);
 
   useEffect(() => {
-    if (!error && loading === false) fnStats([id]);
-  }, [loading, error, id, fnStats]);
+    if (loading === false) {
+      fnStats({ urlIds: [id] });
+    }
+  }, [loading, id]);
 
-  if (error) {
+  if (url?.fetchError) {
     router.push("/dashboard");
   }
 
@@ -103,7 +103,7 @@ const LinkPage = () => {
               <Skeleton className="w-[146px] h-[20px]" />
             ) : (
               <span className="flex items-end font-extralight text-sm">
-                {new Date(url?.created_at!).toLocaleString()}
+                {new Date(url?.created_at).toLocaleString()}
               </span>
             )}
             {initialLoading ? (
@@ -134,7 +134,7 @@ const LinkPage = () => {
             </CardHeader>
             {initialLoading ? (
               <Skeleton className="w-[100%] max-w-[100%]  h-[650px]" />
-            ) : stats && stats.length ? (
+            ) : stats && stats?.length ? (
               <CardContent className="flex flex-col gap-6">
                 <Card>
                   <CardHeader>

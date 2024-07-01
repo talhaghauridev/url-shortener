@@ -1,12 +1,13 @@
 "use client";
 import { Input } from "@/components/ui/input";
 import { Filter } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 const SearchLinkBox = () => {
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const [query, setQuery] = useState<string>("");
+  const [query, setQuery] = useState<string>(searchParams.get("query") || "");
   const handleSearch = useCallback(
     (input: string) => {
       if (input.trim() !== "") {
@@ -31,6 +32,7 @@ const SearchLinkBox = () => {
       <Input
         type="text"
         placeholder="Filter Links..."
+        value={query}
         onChange={(e) => setQuery(e.target.value)}
       />
       <Filter className="absolute top-2 right-2 p-1" />

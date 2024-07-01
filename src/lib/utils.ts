@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -35,4 +36,14 @@ export const download = (url: string, filename: string) => {
       a.click();
     })
     .catch((error) => console.log({ error }));
+};
+
+export const actionErrorHandler = (data: any) => {
+  if (data.serverError) {
+    return toast.error(data.serverError);
+  } else if (data.fetchError) {
+    return toast.error(data.fetchError);
+  } else if (data.validationErrors) {
+    return toast.error(`Validation Error`);
+  }
 };

@@ -1,66 +1,69 @@
 "use client";
-import useFetch from "@/hooks/useFetch";
 import { storeClicks } from "@/lib/actions/clicks.action";
 import { getLongUrl } from "@/lib/actions/urls.actions";
+import { actionErrorHandler } from "@/lib/utils";
+import { useAction } from "next-safe-action/hooks";
 import { useCallback, useEffect } from "react";
 import { BarLoader } from "react-spinners";
-import { toast } from "react-toastify";
 
 type RedirectingParams = {
   id: string;
 };
 
-const user_agent = typeof navigator !== "undefined" && navigator.userAgent;
+const user_agent = typeof navigator !== "undefined" ? navigator.userAgent : "";
 
 const Redirecting = ({ id }: RedirectingParams) => {
   const {
-    loading,
-    data,
-    fn: fuLongUrl,
-    error: errLongUrl,
-  } = useFetch(getLongUrl);
-
+    isExecuting: loadingLongUrl,
+    result: longUrlData,
+    execute: fetchLongUrl,
+  } = useAction(getLongUrl);
   const {
-    loading: loadingStats,
-    fn: fnStats,
-    error: errStats,
-  } = useFetch(storeClicks);
+    isExecuting: loadingClicks,
+    execute: logClicks,
+    result: storeClicksData,
+  } = useAction(storeClicks);
 
-  const memoizedFnStats = useCallback(fnStats, [fnStats]);
-  const memoizedFuLongUrl = useCallback(fuLongUrl, [fuLongUrl]);
-
-  useEffect(() => {
-    if (
-      !loading &&
-      data &&
-      typeof data === "object" &&
-      "id" in data &&
-      "original_url" in data &&
-      user_agent
-    ) {
-      memoizedFnStats({
-        id: data.id as string,
-        user_agent,
-      });
-      if (typeof window !== "undefined") {
-        window.location.href = String(data.original_url);
-      }
-    }
-  }, [loading, data, memoizedFnStats]);
-
-  useEffect(() => {
-    if ((!loadingStats && errLongUrl) || errStats) {
-      toast.error(String(errLongUrl || errStats));
-    }
-  }, [loadingStats, errLongUrl, errStats]);
+  const memoizedFetchLongUrl = useCallback((id: string) => {
+    setTimeout(() => {
+      fetchLongUrl({ id });
+    }, 0);
+  }, []);
+  const memoizedLogClicks = useCallback(
+    (data: { id: string; user_agent: string }) => {
+      setTimeout(() => {
+        logClicks(data);
+      }),
+        0;
+    },
+    []
+  );
 
   useEffect(() => {
     if (id) {
-      memoizedFuLongUrl(id);
+      memoizedFetchLongUrl(id);
     }
-  }, [id, memoizedFuLongUrl]);
+  }, [id]);
 
-  if (loading || loadingStats) {
+  useEffect(() => {
+    if (!loadingLongUrl && longUrlData?.data && user_agent) {
+      memoizedLogClicks({
+        id: String(longUrlData.data.id),
+        user_agent,
+      });
+      if (typeof window !== "undefined") {
+        window.location.href = String(longUrlData.data.original_url);
+      }
+    }
+  }, [loadingLongUrl, longUrlData]);
+
+  useEffect(() => {
+    if (!loadingLongUrl || !loadingClicks) {
+      actionErrorHandler(longUrlData || storeClicksData);
+    }
+  }, [loadingLongUrl, loadingClicks, longUrlData, storeClicksData]);
+
+  if (loadingLongUrl || loadingClicks) {
     return (
       <>
         <BarLoader width={"100%"} color="#36d7b7" />
