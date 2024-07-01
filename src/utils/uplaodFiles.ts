@@ -61,12 +61,15 @@ export const removeQRCodeFile = async (url: string) => {
       toast.error("Invalid Url");
       return false;
     }
-    const { error: storageError } = await supabase.storage
+    const { error: storageError, data } = await supabase.storage
       .from("qrs")
       .remove([fileName[1]]);
     if (storageError) {
       toast.error(storageError.message);
       return false;
+    }
+    if (data) {
+      console.log(data);
     }
     return true;
   } catch (error: any) {

@@ -152,7 +152,7 @@ const LinkPage = () => {
               </CardContent>
             ) : (
               <CardContent>
-                {initialLoading === false && !stats
+                {initialLoading === false
                   ? "No Statistics yet"
                   : "Loading Statistics.."}
               </CardContent>
