@@ -45,7 +45,7 @@ export const storeClicks = actionClient
   .action(async ({ parsedInput: { id, user_agent } }) => {
     try {
       const device = detectDevice(user_agent);
-      const location = await fetchUserLocation();
+      const location = await fetchUserLocation({});
       const { city, country } = location?.data;
       const supabase = createClient();
       const { error, data } = await supabase.from("clicks").insert({

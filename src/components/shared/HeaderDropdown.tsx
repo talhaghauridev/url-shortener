@@ -54,12 +54,11 @@ const HeaderDropdown = () => {
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
-                executeAsync({ path: pathname }).then(() => {
-                  fetchUser();
-                  if (isAuthenticated === false && !user) {
-                    router.push("/auth");
-                  }
-                });
+                executeAsync({ path: pathname });
+                fetchUser();
+                if (isAuthenticated === false && !user) {
+                  router.push("/auth");
+                }
               }}
               className="text-red-400"
             >

@@ -79,23 +79,24 @@ const SignupForm = () => {
     []
   );
   const handleRedirect = useCallback(() => {
-    actionErrorHandler(data);
     if (isAuthenticated && !userLoading) {
       router.push(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`);
       return;
     }
 
-    if (data) {
+    if (data.data) {
       fetchUser();
       router.push(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`, {
         scroll: false,
       });
     }
-  }, [isAuthenticated, userLoading, longLink, data, router]);
+  }, [isAuthenticated, userLoading, longLink, data, router, fetchUser]);
 
   useEffect(() => {
-    handleRedirect();
-  }, [handleRedirect]);
+    if (data?.data) {
+      handleRedirect();
+    }
+  }, [data, handleRedirect]);
 
   return (
     <Card>

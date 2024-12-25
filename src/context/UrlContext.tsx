@@ -9,6 +9,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -30,16 +31,19 @@ const useUrlContext = (): UrlContextType => {
 };
 
 const useUser = () => {
-  const { execute, result: data, isExecuting } = useAction(getUser);
+  const initial = useRef(false);
+  const { executeAsync, result: data, isExecuting } = useAction(getUser);
 
-  const fetchUser = useCallback(async () => {
-    setTimeout(() => {
-      execute();
-    }, 0);
-  }, []);
+  const fetchUser = () => {
+    executeAsync({});
+    console.log("Hello World");
+  };
   useEffect(() => {
-    fetchUser();
-  }, []);
+    if (initial.current === false) {
+      fetchUser();
+      initial.current = true;
+    }
+  }, [initial]);
 
   const isAuthenticated = useMemo(
     () => data.data?.role === "authenticated",

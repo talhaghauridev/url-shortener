@@ -36,27 +36,22 @@ const initialValues: SignInType = {
 };
 
 const LoginForm = () => {
-  const searchParams = useSearchParams();
   const { isAuthenticated, loading: userLoading, fetchUser } = useUrlContext();
+  const searchParams = useSearchParams();
   const longLink = searchParams.get("createNew");
   const router = useRouter();
-  const form = useForm({
-    defaultValues: initialValues,
-    mode: "onBlur",
-    resolver: zodResolver(SignInValidation),
-  });
 
+  const form = useForm({ defaultValues: initialValues, mode: "onBlur" });
   const { execute, result: data, isExecuting: loading } = useAction(signin);
 
   const onSubmit = useCallback(
-    async (values: SignInType) => {
+    async (values: any) => {
       await execute(values);
     },
     [execute]
   );
 
   const handleRedirect = useCallback(() => {
-    actionErrorHandler(data);
     if (isAuthenticated && !userLoading) {
       router.push(`/dashboard?${longLink ? `createNew=${longLink}` : ""}`);
       return;
@@ -68,12 +63,14 @@ const LoginForm = () => {
         scroll: false,
       });
     }
-  }, [isAuthenticated, userLoading, longLink, data, router]);
+  }, [isAuthenticated, userLoading, longLink, data, router, fetchUser]);
 
+  // Ensure that the effect only runs when necessary
   useEffect(() => {
-    handleRedirect();
-  }, [handleRedirect]);
-
+    if (data?.data) {
+      handleRedirect();
+    }
+  }, [data, handleRedirect]);
   return (
     <Card>
       <CardHeader>
