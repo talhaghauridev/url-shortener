@@ -50,6 +50,7 @@ const LoginForm = () => {
     },
     [execute]
   );
+  console.log({ isAuthenticated, data });
 
   const handleRedirect = useCallback(() => {
     if (isAuthenticated && !userLoading) {
@@ -63,14 +64,17 @@ const LoginForm = () => {
         scroll: false,
       });
     }
-  }, [isAuthenticated, userLoading, longLink, data, router, fetchUser]);
+  }, [isAuthenticated, userLoading, longLink, data?.data, router, fetchUser]);
 
   // Ensure that the effect only runs when necessary
   useEffect(() => {
     if (data?.data) {
       handleRedirect();
     }
-  }, [data, handleRedirect]);
+    if (data?.data && isAuthenticated) {
+      router.replace("/dashboard");
+    }
+  }, [data?.data, handleRedirect, router, isAuthenticated]);
   return (
     <Card>
       <CardHeader>

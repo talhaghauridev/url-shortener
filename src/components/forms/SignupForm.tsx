@@ -96,7 +96,10 @@ const SignupForm = () => {
     if (data?.data) {
       handleRedirect();
     }
-  }, [data, handleRedirect]);
+    if (data?.data && isAuthenticated) {
+      router.replace("/dashboard");
+    }
+  }, [data, handleRedirect, router, isAuthenticated]);
 
   return (
     <Card>

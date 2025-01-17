@@ -1,16 +1,13 @@
 "use client";
 import { getUser } from "@/lib/actions/user.actions";
-import { actionErrorHandler } from "@/lib/utils";
 import { AuthSession } from "@supabase/supabase-js";
 import { useAction } from "next-safe-action/hooks";
 import React, {
   createContext,
-  useCallback,
   useContext,
   useEffect,
   useMemo,
   useRef,
-  useState,
 } from "react";
 
 type UrlContextType = {
